@@ -8,14 +8,22 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/quangbach27/wild-workout-project/internal/common/logs"
+	"github.com/quangbach27/wild-workout/internal/common/logs"
 
 	"github.com/sirupsen/logrus"
 )
 
 func RunHTTPServer(createHandler func(router chi.Router) http.Handler) {
 	apiRouter := chi.NewRouter()
+	setMiddlewares(apiRouter)
 
+	rootRouter := chi.NewRouter()
+	// we are mounting all APIs under /api path
+	rootRouter.Mount("/api", createHandler(apiRouter))
+
+	logrus.Info("Starting HTTP server")
+
+	http.ListenAndServe(":"+os.Getenv("PORT"), rootRouter)
 }
 
 func setMiddlewares(router *chi.Mux) {
