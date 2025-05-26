@@ -1,0 +1,8 @@
+version: "3.2"
+services:
+  firestore_emulator:
+    image: mtlynch/firestore-emulator
+    env_file:
+      - .env
+    ports:
+      - 8787:8787
