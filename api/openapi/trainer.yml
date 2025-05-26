@@ -47,6 +47,58 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /trainer/calendar/make-hour-available:
+    put:
+      operationId: makeHourAvailable
+      requestBody:
+        description: todo
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HourUpdate'
+      responses:
+        '204':
+          description: todo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Date'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /trainer/calendar/make-hour-unavailable:
+    put:
+      operationId: makeHourUnavailable
+      requestBody:
+        description: todo
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HourUpdate'
+      responses:
+        '204':
+          description: todo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Date'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   schemas:
     Date:
@@ -75,6 +127,16 @@ components:
           type: boolean
         hasTrainingScheduled:
           type: boolean
+
+    HourUpdate:
+      type: object
+      required: [hours]
+      properties:
+        hours:
+          type: array
+          items:
+            type: string
+            format: date-time
 
     Error:
       type: object

@@ -29,8 +29,19 @@ type Hour struct {
 	Hour                 time.Time `json:"hour"`
 }
 
+// HourUpdate defines model for HourUpdate.
+type HourUpdate struct {
+	Hours []time.Time `json:"hours"`
+}
+
 // GetTrainerAvailableHoursParams defines parameters for GetTrainerAvailableHours.
 type GetTrainerAvailableHoursParams struct {
 	DateFrom time.Time `form:"dateFrom" json:"dateFrom"`
 	DateTo   time.Time `form:"dateTo" json:"dateTo"`
 }
+
+// MakeHourAvailableJSONRequestBody defines body for MakeHourAvailable for application/json ContentType.
+type MakeHourAvailableJSONRequestBody = HourUpdate
+
+// MakeHourUnavailableJSONRequestBody defines body for MakeHourUnavailable for application/json ContentType.
+type MakeHourUnavailableJSONRequestBody = HourUpdate

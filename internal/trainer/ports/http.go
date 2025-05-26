@@ -14,12 +14,18 @@ type HTTPServer struct {
 	application app.Application
 }
 
+func NewHttpServer(application app.Application) HTTPServer {
+	return HTTPServer{
+		application: application,
+	}
+}
+
 func (httpServer HTTPServer) GetTrainerAvailableHours(w http.ResponseWriter, r *http.Request, params GetTrainerAvailableHoursParams) {
 	cmd := query.AvailableHours{
 		From: params.DateFrom,
 		To:   params.DateTo,
 	}
-	dateModels, err := httpServer.application.Queries.AvailableHoursHandler.Handle(r.Context(), cmd)
+	dateModels, err := httpServer.application.Queries.TrainerAvailableHours.Handle(r.Context(), cmd)
 	if err != nil {
 		httperr.RespondWithSlugError(err, w, r)
 	}
@@ -46,4 +52,58 @@ func dateModelToResponse(dateModels []query.Date) []Date {
 	}
 
 	return dates
+}
+
+func (httpServer HTTPServer) MakeHourAvailable(w http.ResponseWriter, r *http.Request) {
+	// user, err := auth.UserFromCtx(r.Context())
+	// if err != nil {
+	// 	httperr.RespondWithSlugError(err, w, r)
+	// 	return
+	// }
+
+	// if user.Role != "trainer" {
+	// 	httperr.Unauthorised("invalid-role", nil, w, r)
+	// 	return
+	// }
+
+	hourUpdate := &HourUpdate{}
+	if err := render.Decode(r, hourUpdate); err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	err := httpServer.application.Commands.MakeHoursAvailable.Handle(r.Context(), hourUpdate.Hours)
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (httpServer HTTPServer) MakeHourUnavailable(w http.ResponseWriter, r *http.Request) {
+	// user, err := auth.UserFromCtx(r.Context())
+	// if err != nil {
+	// 	httperr.RespondWithSlugError(err, w, r)
+	// 	return
+	// }
+
+	// if user.Role != "trainer" {
+	// 	httperr.Unauthorised("invalid-role", nil, w, r)
+	// 	return
+	// }
+
+	hourUpdate := &HourUpdate{}
+	if err := render.Decode(r, hourUpdate); err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	err := httpServer.application.Commands.MakeHoursUnavailable.Handle(r.Context(), hourUpdate.Hours)
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

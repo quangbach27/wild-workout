@@ -16,6 +16,12 @@ type ServerInterface interface {
 
 	// (GET /trainer/calendar)
 	GetTrainerAvailableHours(w http.ResponseWriter, r *http.Request, params GetTrainerAvailableHoursParams)
+
+	// (PUT /trainer/calendar/make-hour-available)
+	MakeHourAvailable(w http.ResponseWriter, r *http.Request)
+
+	// (PUT /trainer/calendar/make-hour-unavailable)
+	MakeHourUnavailable(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -24,6 +30,16 @@ type Unimplemented struct{}
 
 // (GET /trainer/calendar)
 func (_ Unimplemented) GetTrainerAvailableHours(w http.ResponseWriter, r *http.Request, params GetTrainerAvailableHoursParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (PUT /trainer/calendar/make-hour-available)
+func (_ Unimplemented) MakeHourAvailable(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (PUT /trainer/calendar/make-hour-unavailable)
+func (_ Unimplemented) MakeHourUnavailable(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -76,6 +92,34 @@ func (siw *ServerInterfaceWrapper) GetTrainerAvailableHours(w http.ResponseWrite
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetTrainerAvailableHours(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// MakeHourAvailable operation middleware
+func (siw *ServerInterfaceWrapper) MakeHourAvailable(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.MakeHourAvailable(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// MakeHourUnavailable operation middleware
+func (siw *ServerInterfaceWrapper) MakeHourUnavailable(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.MakeHourUnavailable(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -200,6 +244,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/trainer/calendar", wrapper.GetTrainerAvailableHours)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/trainer/calendar/make-hour-available", wrapper.MakeHourAvailable)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/trainer/calendar/make-hour-unavailable", wrapper.MakeHourUnavailable)
 	})
 
 	return r
