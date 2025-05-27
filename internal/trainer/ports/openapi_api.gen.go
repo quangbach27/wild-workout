@@ -4,6 +4,7 @@
 package ports
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -57,6 +58,12 @@ func (siw *ServerInterfaceWrapper) GetTrainerAvailableHours(w http.ResponseWrite
 
 	var err error
 
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetTrainerAvailableHoursParams
 
@@ -104,6 +111,12 @@ func (siw *ServerInterfaceWrapper) GetTrainerAvailableHours(w http.ResponseWrite
 // MakeHourAvailable operation middleware
 func (siw *ServerInterfaceWrapper) MakeHourAvailable(w http.ResponseWriter, r *http.Request) {
 
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.MakeHourAvailable(w, r)
 	}))
@@ -117,6 +130,12 @@ func (siw *ServerInterfaceWrapper) MakeHourAvailable(w http.ResponseWriter, r *h
 
 // MakeHourUnavailable operation middleware
 func (siw *ServerInterfaceWrapper) MakeHourUnavailable(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.MakeHourUnavailable(w, r)

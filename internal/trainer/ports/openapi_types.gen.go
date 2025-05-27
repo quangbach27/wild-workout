@@ -9,6 +9,10 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+const (
+	BearerAuthScopes = "bearerAuth.Scopes"
+)
+
 // Date defines model for Date.
 type Date struct {
 	Date         openapi_types.Date `json:"date"`

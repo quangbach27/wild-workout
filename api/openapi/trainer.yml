@@ -10,6 +10,9 @@ servers:
       hostname:
         default: localhost
 
+security:
+  - bearerAuth: []
+
 paths:
   /trainer/calendar:
     get:
@@ -56,22 +59,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/HourUpdate'
+              $ref: "#/components/schemas/HourUpdate"
       responses:
-        '204':
+        "204":
           description: todo
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Date'
+                  $ref: "#/components/schemas/Date"
         default:
           description: unexpected error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /trainer/calendar/make-hour-unavailable:
     put:
@@ -82,24 +85,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/HourUpdate'
+              $ref: "#/components/schemas/HourUpdate"
       responses:
-        '204':
+        "204":
           description: todo
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Date'
+                  $ref: "#/components/schemas/Date"
         default:
           description: unexpected error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      schema: bearer
+      bearerFormat: JWT
   schemas:
     Date:
       type: object

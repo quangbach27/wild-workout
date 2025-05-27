@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -19,14 +20,20 @@ import (
 )
 
 func RunHTTPServer(createHandler func(router chi.Router) http.Handler) {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	httpEndpoint := fmt.Sprintf(":%s", port)
+
 	apiRouter := chi.NewRouter()
 	setMiddlewares(apiRouter)
 
 	rootRouter := chi.NewRouter()
 	rootRouter.Mount("/api", createHandler(apiRouter))
 
-	logrus.Info("Starting HTTP server")
-	http.ListenAndServe(":"+os.Getenv("PORT"), rootRouter)
+	logrus.Info("Starting HTTP server at:", httpEndpoint)
+	http.ListenAndServe(httpEndpoint, rootRouter)
 }
 
 func setMiddlewares(router *chi.Mux) {
