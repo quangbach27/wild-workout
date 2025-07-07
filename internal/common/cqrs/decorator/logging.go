@@ -37,13 +37,13 @@ func (l loggingCommandHandler[C]) Handle(ctx context.Context, cmd C) (err error)
 	return l.next.Handle(ctx, cmd)
 }
 
-// LoggingQueryHandler decorates a QueryHandler with logging.
-type LoggingQueryHandler[Q any, R any] struct {
+// loggingQueryHandler decorates a QueryHandler with logging.
+type loggingQueryHandler[Q any, R any] struct {
 	logger *logrus.Entry
 	next   QueryHandler[Q, R]
 }
 
-func (l *LoggingQueryHandler[Q, R]) Handle(ctx context.Context, query Q) (result R, err error) {
+func (l loggingQueryHandler[Q, R]) Handle(ctx context.Context, query Q) (result R, err error) {
 	handlerType := generateActionName(query)
 	logger := l.logger.WithFields(logrus.Fields{
 		"query":      handlerType,

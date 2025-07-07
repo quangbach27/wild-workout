@@ -11,13 +11,13 @@ type MetricsClient interface {
 	Inc(key string, value int)
 }
 
-// MetricsCommandHandler decorates a CommandHandler with metrics and logging, then runs the command.
-type MetricsCommandHandler[C any] struct {
+// metricsCommandHandler decorates a CommandHandler with metrics and logging, then runs the command.
+type metricsCommandHandler[C any] struct {
 	next   CommandHandler[C]
 	client MetricsClient
 }
 
-func (m *MetricsCommandHandler[C]) Handle(ctx context.Context, cmd C) (err error) {
+func (m metricsCommandHandler[C]) Handle(ctx context.Context, cmd C) (err error) {
 	start := time.Now()
 
 	actionName := strings.ToLower(generateActionName(cmd))
@@ -37,13 +37,13 @@ func (m *MetricsCommandHandler[C]) Handle(ctx context.Context, cmd C) (err error
 	return m.next.Handle(ctx, cmd)
 }
 
-// MetricsQueryHandler decorates a QueryHandler with metrics and logging, then runs the query.
-type MetricsQueryHandler[Q any, R any] struct {
+// metricsQueryHandler decorates a QueryHandler with metrics and logging, then runs the query.
+type metricsQueryHandler[Q any, R any] struct {
 	next   QueryHandler[Q, R]
 	client MetricsClient
 }
 
-func (m *MetricsQueryHandler[Q, R]) Handle(ctx context.Context, query Q) (result R, err error) {
+func (m metricsQueryHandler[Q, R]) Handle(ctx context.Context, query Q) (result R, err error) {
 	start := time.Now()
 	actionName := strings.ToLower(generateActionName(query))
 
