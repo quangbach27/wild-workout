@@ -1,0 +1,8 @@
+go 1.26.1
+
+use (
+	./internal/common
+	./internal/trainer
+	./internal/training
+	./internal/user
+)
