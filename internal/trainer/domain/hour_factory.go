@@ -66,7 +66,7 @@ type HourFactory struct {
 	config HourFactoryConfig
 }
 
-func NewFactory(config HourFactoryConfig) (HourFactory, error) {
+func NewHourFactory(config HourFactoryConfig) (HourFactory, error) {
 	if err := config.Validate(); err != nil {
 		return HourFactory{}, err
 	}
@@ -74,8 +74,8 @@ func NewFactory(config HourFactoryConfig) (HourFactory, error) {
 	return HourFactory{config: config}, nil
 }
 
-func MustNewFactory(fc HourFactoryConfig) HourFactory {
-	f, err := NewFactory(fc)
+func MustNewHourFactory(fc HourFactoryConfig) HourFactory {
+	f, err := NewHourFactory(fc)
 	if err != nil {
 		panic(err)
 	}

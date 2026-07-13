@@ -29,7 +29,7 @@ func newTestPool(t *testing.T) *pgxpool.Pool {
 }
 
 func testHourFactory() domain.HourFactory {
-	return domain.MustNewFactory(domain.HourFactoryConfig{
+	return domain.MustNewHourFactory(domain.HourFactoryConfig{
 		MaxWeeksInTheFutureToSet: 10,
 		MinUtcHour:               0,
 		MaxUtcHour:               24,

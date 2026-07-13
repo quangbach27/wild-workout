@@ -24,6 +24,39 @@ func (q *Queries) GetHour(ctx context.Context, hour time.Time) (TrainerHour, err
 	return i, err
 }
 
+const listHours = `-- name: ListHours :many
+SELECT hour, availability
+FROM trainer.hours
+WHERE hour >= $1::timestamptz
+  AND hour <=  $2::timestamptz
+ORDER BY hour
+`
+
+type ListHoursParams struct {
+	FromTime time.Time
+	ToTime   time.Time
+}
+
+func (q *Queries) ListHours(ctx context.Context, arg ListHoursParams) ([]TrainerHour, error) {
+	rows, err := q.db.Query(ctx, listHours, arg.FromTime, arg.ToTime)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TrainerHour{}
+	for rows.Next() {
+		var i TrainerHour
+		if err := rows.Scan(&i.Hour, &i.Availability); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const upsertHour = `-- name: UpsertHour :exec
 INSERT INTO trainer.hours (hour, availability)
 VALUES ($1, $2)

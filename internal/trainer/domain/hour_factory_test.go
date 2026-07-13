@@ -23,7 +23,7 @@ func validFactoryConfig() domain.HourFactoryConfig {
 func TestNewFactory(t *testing.T) {
 	config := validFactoryConfig()
 
-	factory, err := domain.NewFactory(config)
+	factory, err := domain.NewHourFactory(config)
 	require.NoError(t, err)
 
 	assert.False(t, factory.IsZero())
@@ -34,7 +34,7 @@ func TestHourFactory_IsZero(t *testing.T) {
 	var factory domain.HourFactory
 	assert.True(t, factory.IsZero())
 
-	factory = domain.MustNewFactory(validFactoryConfig())
+	factory = domain.MustNewHourFactory(validFactoryConfig())
 	assert.False(t, factory.IsZero())
 }
 
@@ -122,7 +122,7 @@ func TestNewFactory_invalid_config(t *testing.T) {
 		MaxUtcHour:               24,
 	}
 
-	factory, err := domain.NewFactory(config)
+	factory, err := domain.NewHourFactory(config)
 
 	require.Error(t, err)
 	assert.True(t, factory.IsZero())
@@ -136,12 +136,12 @@ func TestMustNewFactory_panics_on_invalid_config(t *testing.T) {
 	}
 
 	assert.Panics(t, func() {
-		domain.MustNewFactory(config)
+		domain.MustNewHourFactory(config)
 	})
 }
 
 func TestHourFactory_NewAvailableHour(t *testing.T) {
-	factory := domain.MustNewFactory(validFactoryConfig())
+	factory := domain.MustNewHourFactory(validFactoryConfig())
 	hourTime := time.Now().Add(24 * time.Hour).Truncate(time.Hour)
 
 	hour, err := factory.NewAvailableHour(hourTime)
@@ -152,7 +152,7 @@ func TestHourFactory_NewAvailableHour(t *testing.T) {
 }
 
 func TestHourFactory_NewNotAvailableHour(t *testing.T) {
-	factory := domain.MustNewFactory(validFactoryConfig())
+	factory := domain.MustNewHourFactory(validFactoryConfig())
 	hourTime := time.Now().Add(24 * time.Hour).Truncate(time.Hour)
 
 	hour, err := factory.NewNotAvailableHour(hourTime)
@@ -163,7 +163,7 @@ func TestHourFactory_NewNotAvailableHour(t *testing.T) {
 }
 
 func TestHourFactory_validateTime_not_full_hour(t *testing.T) {
-	factory := domain.MustNewFactory(validFactoryConfig())
+	factory := domain.MustNewHourFactory(validFactoryConfig())
 	hourTime := time.Now().Add(24 * time.Hour).Truncate(time.Hour).Add(30 * time.Minute)
 
 	_, err := factory.NewAvailableHour(hourTime)
@@ -172,7 +172,7 @@ func TestHourFactory_validateTime_not_full_hour(t *testing.T) {
 }
 
 func TestHourFactory_validateTime_past_hour(t *testing.T) {
-	factory := domain.MustNewFactory(validFactoryConfig())
+	factory := domain.MustNewHourFactory(validFactoryConfig())
 	hourTime := time.Now().Add(-24 * time.Hour).Truncate(time.Hour)
 
 	_, err := factory.NewAvailableHour(hourTime)
@@ -181,7 +181,7 @@ func TestHourFactory_validateTime_past_hour(t *testing.T) {
 }
 
 func TestHourFactory_validateTime_current_hour(t *testing.T) {
-	factory := domain.MustNewFactory(validFactoryConfig())
+	factory := domain.MustNewHourFactory(validFactoryConfig())
 	hourTime := time.Now().Truncate(time.Hour)
 
 	_, err := factory.NewAvailableHour(hourTime)
@@ -190,7 +190,7 @@ func TestHourFactory_validateTime_current_hour(t *testing.T) {
 }
 
 func TestHourFactory_validateTime_too_distant_date(t *testing.T) {
-	factory := domain.MustNewFactory(domain.HourFactoryConfig{
+	factory := domain.MustNewHourFactory(domain.HourFactoryConfig{
 		MaxWeeksInTheFutureToSet: 1,
 		MinUtcHour:               0,
 		MaxUtcHour:               24,
@@ -205,7 +205,7 @@ func TestHourFactory_validateTime_too_distant_date(t *testing.T) {
 }
 
 func TestHourFactory_validateTime_too_early_hour(t *testing.T) {
-	factory := domain.MustNewFactory(domain.HourFactoryConfig{
+	factory := domain.MustNewHourFactory(domain.HourFactoryConfig{
 		MaxWeeksInTheFutureToSet: 10,
 		MinUtcHour:               8,
 		MaxUtcHour:               20,
@@ -221,7 +221,7 @@ func TestHourFactory_validateTime_too_early_hour(t *testing.T) {
 }
 
 func TestHourFactory_validateTime_too_late_hour(t *testing.T) {
-	factory := domain.MustNewFactory(domain.HourFactoryConfig{
+	factory := domain.MustNewHourFactory(domain.HourFactoryConfig{
 		MaxWeeksInTheFutureToSet: 10,
 		MinUtcHour:               8,
 		MaxUtcHour:               20,

@@ -1,0 +1,175 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Wild Workouts trainer
+  description: TODO
+servers:
+  - url: https://{hostname}/api
+    variables:
+      hostname:
+        default: localhost
+
+paths:
+  /trainer/calendar:
+    get:
+      operationId: getTrainerAvailableHours
+      parameters:
+        - in: query
+          name: dateFrom
+          schema:
+            type: string
+            format: date-time
+            x-go-type: time.Time
+          required: true
+        - in: query
+          name: dateTo
+          schema:
+            type: string
+            format: date-time
+            x-go-type: time.Time
+          required: true
+      responses:
+        '200':
+          description: todo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Date'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /trainer/calendar/make-hour-available:
+    put:
+      operationId: makeHourAvailable
+      requestBody:
+        description: todo
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HourUpdate'
+      responses:
+        '204':
+          description: todo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Date'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /trainer/calendar/make-hour-unavailable:
+    put:
+      operationId: makeHourUnavailable
+      requestBody:
+        description: todo
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HourUpdate'
+      responses:
+        '204':
+          description: todo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Date'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Date:
+      type: object
+      required: [date, hasFreeHours, hours]
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2020-03-22"
+        hasFreeHours:
+          type: boolean
+        hours:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hour'
+
+    Hour:
+      type: object
+      required: [hour, available, hasTrainingScheduled]
+      properties:
+        hour:
+          type: string
+          format: date-time
+          x-go-type: time.Time
+        available:
+          type: boolean
+        hasTrainingScheduled:
+          type: boolean
+
+    HourUpdate:
+      type: object
+      required: [hours]
+      properties:
+        hours:
+          type: array
+          items:
+            type: string
+            format: date-time
+            x-go-type: time.Time
+
+    ErrorResponse:
+      type: object
+      required:
+        - slug
+        - message
+      properties:
+        slug:
+          type: string
+          description: Error slug
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: array
+          description: Detailed error information
+          items:
+            $ref: '#/components/schemas/ErrorDetails'
+
+    ErrorDetails:
+      type: object
+      required:
+        - error_slug
+        - message
+      properties:
+        entity_type:
+          type: string
+        entity_id:
+          type: string
+        error_slug:
+          type: string
+        message:
+          type: string

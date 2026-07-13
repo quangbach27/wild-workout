@@ -13,7 +13,7 @@ import (
 func newAvailableHour(t *testing.T) *domain.Hour {
 	t.Helper()
 
-	factory := domain.MustNewFactory(domain.HourFactoryConfig{
+	factory := domain.MustNewHourFactory(domain.HourFactoryConfig{
 		MaxWeeksInTheFutureToSet: 10,
 		MinUtcHour:               0,
 		MaxUtcHour:               24,
@@ -27,7 +27,7 @@ func newAvailableHour(t *testing.T) *domain.Hour {
 }
 
 func TestHour_Time(t *testing.T) {
-	factory := domain.MustNewFactory(domain.HourFactoryConfig{
+	factory := domain.MustNewHourFactory(domain.HourFactoryConfig{
 		MaxWeeksInTheFutureToSet: 10,
 		MinUtcHour:               0,
 		MaxUtcHour:               24,
