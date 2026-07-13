@@ -4,3 +4,6 @@
 
 # Per-service environment files (see .env.example in each service directory)
 .env
+
+# macOS
+.DS_Store
