@@ -33,7 +33,7 @@ type Service struct {
 func New(
 	ctx context.Context,
 	pgxDb *pgxpool.Pool,
-) *Service {
+) (*Service, error) {
 	e := commonHttp.NewEcho()
 
 	service := &Service{
@@ -41,10 +41,15 @@ func New(
 		pgxDb:      pgxDb,
 	}
 
-	service.init(ctx)
-	service.registerHttp()
+	if err := service.init(ctx); err != nil {
+		return nil, err
+	}
 
-	return service
+	if err := service.registerHttp(); err != nil {
+		return nil, err
+	}
+
+	return service, nil
 }
 
 func (s *Service) Run(

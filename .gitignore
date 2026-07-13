@@ -1,0 +1,6 @@
+# Local dev tooling (docker-compose bind mounts for module cache/build cache)
+.go/
+.go-cache/
+
+# Per-service environment files (see .env.example in each service directory)
+.env

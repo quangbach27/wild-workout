@@ -26,7 +26,11 @@ func main() {
 		panic(err)
 	}
 
-	svc := trainer.New(ctx, dbPgx)
+	svc, err := trainer.New(ctx, dbPgx)
+	if err != nil {
+		panic(err)
+	}
+
 	if err := svc.Run(ctx, config); err != nil {
 		panic(err)
 	}

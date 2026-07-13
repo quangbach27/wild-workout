@@ -23,7 +23,10 @@ func TestMain(m *testing.M) {
 	os.Setenv("HTTP_ADDRESS", ":4000")
 	config := config.New()
 
-	svc := trainer.New(ctx, pgxDb)
+	svc, err := trainer.New(ctx, pgxDb)
+	if err != nil {
+		panic(err)
+	}
 	go func() {
 		if err := svc.Run(ctx, config); err != nil {
 			panic(err)
