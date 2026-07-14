@@ -23,6 +23,10 @@ func (h *Handler) ScheduleTraining(ctx context.Context, cmd ScheduleTraining) er
 		return err
 	}
 
+	if err := training.UpdateNotes(cmd.Notes); err != nil {
+		return err
+	}
+
 	err = h.trainingRepo.AddTraining(ctx, training)
 	if err != nil {
 		return fmt.Errorf("failed to save training to db: %w", err)

@@ -1,0 +1,287 @@
+
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Wild Workouts trainings
+  description: TODO
+  contact:
+    name: Three Dots Labs
+    url: https://threedots.tech/
+servers:
+  - url: https://{hostname}/api
+    variables:
+      hostname:
+        default: localhost
+security:
+  - bearerAuth: []
+paths:
+  /trainings:
+    get:
+      operationId: getTrainings
+      responses:
+        '200':
+          description: todo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trainings'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      operationId: createTraining
+      requestBody:
+        description: todo
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostTraining'
+      responses:
+        '204':
+          description: todo
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /trainings/{trainingUUID}:
+    delete:
+      operationId: cancelTraining
+      parameters:
+        - in: path
+          name: trainingUUID
+          schema:
+            type: string
+            format: uuid
+            x-go-type: domain.TrainingUUID
+            x-go-type-import:
+              path: workout/training/domain
+          required: true
+          description: todo
+      responses:
+        '204':
+          description: todo
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /trainings/{trainingUUID}/reschedule:
+    put:
+      operationId: rescheduleTraining
+      requestBody:
+        description: todo
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostTraining'
+      parameters:
+        - in: path
+          name: trainingUUID
+          schema:
+            type: string
+            format: uuid
+            x-go-type: domain.TrainingUUID
+            x-go-type-import:
+              path: workout/training/domain
+          required: true
+          description: todo
+      responses:
+        '204':
+          description: todo
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /trainings/{trainingUUID}/request-reschedule:
+    put:
+      operationId: requestRescheduleTraining
+      requestBody:
+        description: todo
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostTraining'
+      parameters:
+        - in: path
+          name: trainingUUID
+          schema:
+            type: string
+            format: uuid
+            x-go-type: domain.TrainingUUID
+            x-go-type-import:
+              path: workout/training/domain
+          required: true
+          description: todo
+      responses:
+        '204':
+          description: todo
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /trainings/{trainingUUID}/approve-reschedule:
+    put:
+      operationId: approveRescheduleTraining
+      parameters:
+        - in: path
+          name: trainingUUID
+          schema:
+            type: string
+            format: uuid
+            x-go-type: domain.TrainingUUID
+            x-go-type-import:
+              path: workout/training/domain
+          required: true
+          description: todo
+      responses:
+        '204':
+          description: todo
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /trainings/{trainingUUID}/reject-reschedule:
+    put:
+      operationId: rejectRescheduleTraining
+      parameters:
+        - in: path
+          name: trainingUUID
+          schema:
+            type: string
+            format: uuid
+            x-go-type: domain.TrainingUUID
+            x-go-type-import:
+              path: workout/training/domain
+          required: true
+          description: todo
+      responses:
+        '204':
+          description: todo
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Training:
+      type: object
+      required: [uuid, user, userUuid, notes, time, canBeCancelled, moveRequiresAccept]
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          x-go-type: domain.TrainingUUID
+          x-go-type-import:
+            path: workout/training/domain
+        user:
+          type: string
+          example: Mariusz Pudzianowski
+        userUuid:
+          type: string
+          format: uuid
+          x-go-type: domain.UserUUID
+          x-go-type-import:
+            path: workout/training/domain
+        notes:
+          type: string
+          example: "let's do leg day!"
+        time:
+          type: string
+          format: date-time
+          x-go-type: time.Time
+        canBeCancelled:
+          type: boolean
+        moveRequiresAccept:
+          type: boolean
+        proposedTime:
+          type: string
+          format: date-time
+          x-go-type: time.Time
+        moveProposedBy:
+          type: string
+          x-go-type: domain.UserType
+          x-go-type-import:
+            path: workout/training/domain
+
+    Trainings:
+      type: object
+      required: [trainings]
+      properties:
+        trainings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Training'
+
+    PostTraining:
+      type: object
+      required: [time, notes]
+      properties:
+        notes:
+          type: string
+          example: "let's do leg day!"
+        time:
+          type: string
+          format: date-time
+          x-go-type: time.Time
+
+    ErrorResponse:
+      type: object
+      required:
+        - slug
+        - message
+      properties:
+        slug:
+          type: string
+          description: Error slug
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: array
+          description: Detailed error information
+          items:
+            $ref: '#/components/schemas/ErrorDetails'
+
+    ErrorDetails:
+      type: object
+      required:
+        - error_slug
+        - message
+      properties:
+        entity_type:
+          type: string
+        entity_id:
+          type: string
+        error_slug:
+          type: string
+        message:
+          type: string

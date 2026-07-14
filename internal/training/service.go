@@ -23,6 +23,7 @@ import (
 type ExternalServices struct {
 	UserService    command.UserService
 	TrainerService command.TrainerService
+	AuthClient     commonHttp.AuthClient
 }
 
 type Service struct {
@@ -39,7 +40,7 @@ func NewService(
 	pgxDb *pgxpool.Pool,
 	externalServices ExternalServices,
 ) (*Service, error) {
-	e := commonHttp.NewEcho()
+	e := commonHttp.NewEcho(externalServices.AuthClient)
 	if pgxDb == nil {
 		return nil, errors.New("pgx can't be nil")
 	}
