@@ -54,7 +54,7 @@ type Training struct {
 	ProposedTime       *time.Time          `json:"proposedTime,omitempty"`
 	Time               time.Time           `json:"time"`
 	User               string              `json:"user"`
-	UserUuid           domain.UserUUID     `json:"userUuid"`
+	UserId             domain.UserID       `json:"userId"`
 	Uuid               domain.TrainingUUID `json:"uuid"`
 }
 

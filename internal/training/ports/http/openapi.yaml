@@ -189,7 +189,7 @@ components:
   schemas:
     Training:
       type: object
-      required: [uuid, user, userUuid, notes, time, canBeCancelled, moveRequiresAccept]
+      required: [uuid, user, userId, notes, time, canBeCancelled, moveRequiresAccept]
       properties:
         uuid:
           type: string
@@ -200,10 +200,9 @@ components:
         user:
           type: string
           example: Mariusz Pudzianowski
-        userUuid:
+        userId:
           type: string
-          format: uuid
-          x-go-type: domain.UserUUID
+          x-go-type: domain.UserID
           x-go-type-import:
             path: workout/training/domain
         notes:

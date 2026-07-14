@@ -1,7 +1,7 @@
 -- name: CreateTraining :exec
 INSERT INTO training.trainings (
     training_uuid,
-    user_uuid,
+    user_id,
     username,
     time,
     notes,
@@ -34,5 +34,5 @@ ORDER BY time ASC;
 -- name: FindTrainingsForUser :many
 SELECT *
 FROM training.trainings
-WHERE user_uuid = $1 AND canceled = false
+WHERE user_id = $1 AND canceled = false
 ORDER BY time ASC;

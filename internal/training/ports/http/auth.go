@@ -21,17 +21,12 @@ func userFromContext(ctx context.Context) (authenticatedUser, error) {
 		return authenticatedUser{}, common.NewUnauthorizedError("unauthorized", "missing authentication")
 	}
 
-	var userUUID common.UUID
-	if err := userUUID.UnmarshalText([]byte(claims.UserID)); err != nil {
-		return authenticatedUser{}, common.NewUnauthorizedError("unauthorized", "invalid user id in token")
-	}
-
 	var userType domain.UserType
 	if err := userType.UnmarshalText([]byte(claims.Role)); err != nil {
 		return authenticatedUser{}, common.NewUnauthorizedError("unauthorized", "invalid role in token")
 	}
 
-	user, err := domain.NewUser(domain.UserUUID{UUID: userUUID}, userType)
+	user, err := domain.NewUser(domain.UserID(claims.UserID), userType)
 	if err != nil {
 		return authenticatedUser{}, common.NewUnauthorizedError("unauthorized", "%s", err.Error())
 	}

@@ -11,16 +11,16 @@ import (
 	"workout/training/domain"
 )
 
-func testUserUUID(t *testing.T) domain.UserUUID {
+func testUserID(t *testing.T) domain.UserID {
 	t.Helper()
 
-	return domain.UserUUID{UUID: common.NewUUIDv7()}
+	return domain.UserID(common.NewUUIDv7().String())
 }
 
 func newTraining(t *testing.T, trainingTime time.Time) *domain.Training {
 	t.Helper()
 
-	tr, err := domain.NewTraining(testUserUUID(t), "user-name", trainingTime)
+	tr, err := domain.NewTraining(testUserID(t), "user-name", trainingTime)
 	require.NoError(t, err)
 
 	return tr
@@ -30,38 +30,38 @@ func TestNewTraining(t *testing.T) {
 	t.Parallel()
 
 	trainingTime := time.Now().Add(48 * time.Hour)
-	userUUID := testUserUUID(t)
+	userID := testUserID(t)
 
 	testCases := []struct {
 		Name         string
-		UserUUID     domain.UserUUID
+		UserID       domain.UserID
 		UserName     string
 		TrainingTime time.Time
 		ExpectError  bool
 	}{
 		{
 			Name:         "valid",
-			UserUUID:     userUUID,
+			UserID:       userID,
 			UserName:     "user-name",
 			TrainingTime: trainingTime,
 		},
 		{
-			Name:         "empty_user_uuid",
-			UserUUID:     domain.UserUUID{},
+			Name:         "empty_user_id",
+			UserID:       domain.UserID(""),
 			UserName:     "user-name",
 			TrainingTime: trainingTime,
 			ExpectError:  true,
 		},
 		{
 			Name:         "empty_user_name",
-			UserUUID:     userUUID,
+			UserID:       userID,
 			UserName:     "",
 			TrainingTime: trainingTime,
 			ExpectError:  true,
 		},
 		{
 			Name:         "zero_training_time",
-			UserUUID:     userUUID,
+			UserID:       userID,
 			UserName:     "user-name",
 			TrainingTime: time.Time{},
 			ExpectError:  true,
@@ -72,7 +72,7 @@ func TestNewTraining(t *testing.T) {
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
 
-			tr, err := domain.NewTraining(tc.UserUUID, tc.UserName, tc.TrainingTime)
+			tr, err := domain.NewTraining(tc.UserID, tc.UserName, tc.TrainingTime)
 
 			if tc.ExpectError {
 				require.Error(t, err)
@@ -86,7 +86,7 @@ func TestNewTraining(t *testing.T) {
 
 			require.NoError(t, err)
 			assert.False(t, tr.UUID().IsZero())
-			assert.Equal(t, tc.UserUUID, tr.UserUUID())
+			assert.Equal(t, tc.UserID, tr.UserID())
 			assert.Equal(t, tc.UserName, tr.UserName())
 			assert.True(t, tc.TrainingTime.Equal(tr.Time()))
 			assert.False(t, tr.IsCanceled())

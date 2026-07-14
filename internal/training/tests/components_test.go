@@ -14,7 +14,7 @@ import (
 func TestCreateTraining(t *testing.T) {
 	t.Parallel()
 
-	attendee, attendeeUUID := newAuthenticatedClient(t, "attendee")
+	attendee, attendeeID := newAuthenticatedClient(t, "attendee")
 	trainingTime := newTrainingTime()
 
 	createTraining(t, attendee, trainingTime, "leg day")
@@ -23,11 +23,11 @@ func TestCreateTraining(t *testing.T) {
 	got := findTrainingByTime(t, trainings, trainingTime)
 
 	assert.Equal(t, "leg day", got.Notes)
-	assert.Equal(t, attendeeUUID, got.UserUuid)
+	assert.Equal(t, attendeeID, got.UserId)
 	assert.True(t, got.CanBeCancelled)
 	assert.False(t, got.MoveRequiresAccept)
 
-	assert.Equal(t, []int{-1}, userService.BalanceChangesFor(attendeeUUID))
+	assert.Equal(t, []int{-1}, userService.BalanceChangesFor(attendeeID))
 	assert.True(t, trainerService.WasScheduled(trainingTime))
 }
 
@@ -59,7 +59,7 @@ func TestCreateTraining_RequiresAuthentication(t *testing.T) {
 func TestGetTrainings_AttendeeOnlySeesOwnTrainings(t *testing.T) {
 	t.Parallel()
 
-	alice, aliceUUID := newAuthenticatedClient(t, "attendee")
+	alice, aliceID := newAuthenticatedClient(t, "attendee")
 	bob, _ := newAuthenticatedClient(t, "attendee")
 
 	aliceTraining := newTrainingTime()
@@ -70,7 +70,7 @@ func TestGetTrainings_AttendeeOnlySeesOwnTrainings(t *testing.T) {
 
 	aliceTrainings := getTrainings(t, alice)
 	for _, tr := range aliceTrainings {
-		assert.Equal(t, aliceUUID, tr.UserUuid, "attendee should only see their own trainings")
+		assert.Equal(t, aliceID, tr.UserId, "attendee should only see their own trainings")
 	}
 	findTrainingByTime(t, aliceTrainings, aliceTraining)
 }
@@ -91,7 +91,7 @@ func TestGetTrainings_TrainerSeesAllTrainings(t *testing.T) {
 func TestCancelTraining(t *testing.T) {
 	t.Parallel()
 
-	attendee, attendeeUUID := newAuthenticatedClient(t, "attendee")
+	attendee, attendeeID := newAuthenticatedClient(t, "attendee")
 	trainingTime := newTrainingTime()
 	createTraining(t, attendee, trainingTime, "cancel me")
 
@@ -105,7 +105,7 @@ func TestCancelTraining(t *testing.T) {
 		assert.NotEqual(t, created.Uuid, tr.Uuid, "cancelled training should no longer be listed")
 	}
 
-	assert.Equal(t, []int{-1, 1}, userService.BalanceChangesFor(attendeeUUID), "free cancellation should refund the training")
+	assert.Equal(t, []int{-1, 1}, userService.BalanceChangesFor(attendeeID), "free cancellation should refund the training")
 	assert.True(t, trainerService.WasCancelled(trainingTime))
 }
 

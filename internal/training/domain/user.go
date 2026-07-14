@@ -21,17 +21,23 @@ var (
 	Attendee = common.MustEnum[UserType]("attendee")
 )
 
-type UserUUID struct {
-	common.UUID
+type UserID string
+
+func (id UserID) String() string {
+	return string(id)
+}
+
+func (id UserID) IsZero() bool {
+	return id == ""
 }
 
 type User struct {
-	userUUID UserUUID
+	userID   UserID
 	userType UserType
 }
 
-func (u User) UUID() UserUUID {
-	return u.userUUID
+func (u User) ID() UserID {
+	return u.userID
 }
 
 func (u User) Type() UserType {
@@ -42,22 +48,22 @@ func (u User) IsEmpty() bool {
 	return u == User{}
 }
 
-func NewUser(userUUID UserUUID, userType UserType) (User, error) {
-	if userUUID.IsZero() {
-		return User{}, errors.New("user uuid can't be emtpy")
+func NewUser(userID UserID, userType UserType) (User, error) {
+	if userID.IsZero() {
+		return User{}, errors.New("user id can't be emtpy")
 	}
 	if userType.IsZero() {
 		return User{}, errors.New("user type can't be empty")
 	}
 
-	return User{userUUID: userUUID, userType: userType}, nil
+	return User{userID: userID, userType: userType}, nil
 }
 
 func CanUserSeeTraining(user User, training *Training) error {
-	if user.Type() == Trainer || user.UUID() == training.UserUUID() {
+	if user.Type() == Trainer || user.ID() == training.UserID() {
 		return nil
 	}
 
 	return fmt.Errorf("user '%s' can't see user '%s' training",
-		user.userUUID, training.userUUID)
+		user.userID, training.userID)
 }

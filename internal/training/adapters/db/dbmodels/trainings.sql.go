@@ -15,7 +15,7 @@ import (
 const createTraining = `-- name: CreateTraining :exec
 INSERT INTO training.trainings (
     training_uuid,
-    user_uuid,
+    user_id,
     username,
     time,
     notes,
@@ -27,7 +27,7 @@ INSERT INTO training.trainings (
 
 type CreateTrainingParams struct {
 	TrainingUuid domain.TrainingUUID
-	UserUuid     domain.UserUUID
+	UserID       domain.UserID
 	Username     string
 	Time         time.Time
 	Notes        *string
@@ -37,7 +37,7 @@ type CreateTrainingParams struct {
 func (q *Queries) CreateTraining(ctx context.Context, arg CreateTrainingParams) error {
 	_, err := q.db.Exec(ctx, createTraining,
 		arg.TrainingUuid,
-		arg.UserUuid,
+		arg.UserID,
 		arg.Username,
 		arg.Time,
 		arg.Notes,
@@ -47,14 +47,14 @@ func (q *Queries) CreateTraining(ctx context.Context, arg CreateTrainingParams) 
 }
 
 const findTrainingsForUser = `-- name: FindTrainingsForUser :many
-SELECT training_uuid, user_uuid, username, time, notes, proposed_time, move_proposed_by, canceled
+SELECT training_uuid, user_id, username, time, notes, proposed_time, move_proposed_by, canceled
 FROM training.trainings
-WHERE user_uuid = $1 AND canceled = false
+WHERE user_id = $1 AND canceled = false
 ORDER BY time ASC
 `
 
-func (q *Queries) FindTrainingsForUser(ctx context.Context, userUuid domain.UserUUID) ([]TrainingTraining, error) {
-	rows, err := q.db.Query(ctx, findTrainingsForUser, userUuid)
+func (q *Queries) FindTrainingsForUser(ctx context.Context, userID domain.UserID) ([]TrainingTraining, error) {
+	rows, err := q.db.Query(ctx, findTrainingsForUser, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (q *Queries) FindTrainingsForUser(ctx context.Context, userUuid domain.User
 		var i TrainingTraining
 		if err := rows.Scan(
 			&i.TrainingUuid,
-			&i.UserUuid,
+			&i.UserID,
 			&i.Username,
 			&i.Time,
 			&i.Notes,
@@ -83,7 +83,7 @@ func (q *Queries) FindTrainingsForUser(ctx context.Context, userUuid domain.User
 }
 
 const getTraining = `-- name: GetTraining :one
-SELECT training_uuid, user_uuid, username, time, notes, proposed_time, move_proposed_by, canceled
+SELECT training_uuid, user_id, username, time, notes, proposed_time, move_proposed_by, canceled
 FROM training.trainings
 WHERE training_uuid = $1
 `
@@ -93,7 +93,7 @@ func (q *Queries) GetTraining(ctx context.Context, trainingUuid domain.TrainingU
 	var i TrainingTraining
 	err := row.Scan(
 		&i.TrainingUuid,
-		&i.UserUuid,
+		&i.UserID,
 		&i.Username,
 		&i.Time,
 		&i.Notes,
@@ -105,7 +105,7 @@ func (q *Queries) GetTraining(ctx context.Context, trainingUuid domain.TrainingU
 }
 
 const listAllTrainings = `-- name: ListAllTrainings :many
-SELECT training_uuid, user_uuid, username, time, notes, proposed_time, move_proposed_by, canceled
+SELECT training_uuid, user_id, username, time, notes, proposed_time, move_proposed_by, canceled
 FROM training.trainings
 WHERE canceled = false
 ORDER BY time ASC
@@ -122,7 +122,7 @@ func (q *Queries) ListAllTrainings(ctx context.Context) ([]TrainingTraining, err
 		var i TrainingTraining
 		if err := rows.Scan(
 			&i.TrainingUuid,
-			&i.UserUuid,
+			&i.UserID,
 			&i.Username,
 			&i.Time,
 			&i.Notes,

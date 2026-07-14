@@ -9,7 +9,7 @@ import (
 // storage is trusted.
 func UnmarshalTrainingFromDB(
 	trainingUUID TrainingUUID,
-	userUUID UserUUID,
+	userID UserID,
 	userName string,
 	trainingTime time.Time,
 	notes string,
@@ -19,7 +19,7 @@ func UnmarshalTrainingFromDB(
 ) *Training {
 	return &Training{
 		uuid:            trainingUUID,
-		userUUID:        userUUID,
+		userID:          userID,
 		userName:        userName,
 		time:            trainingTime,
 		notes:           notes,

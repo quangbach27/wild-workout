@@ -17,9 +17,9 @@ func NewUsersGrpc(client user.UsersServiceClient) *UserGrpc {
 	return &UserGrpc{client: client}
 }
 
-func (s *UserGrpc) UpdateTrainingBalance(ctx context.Context, userUUID domain.UserUUID, amountChange int) error {
+func (s *UserGrpc) UpdateTrainingBalance(ctx context.Context, userID domain.UserID, amountChange int) error {
 	_, err := s.client.UpdateTrainingBalance(ctx, &user.UpdateTrainingBalanceRequest{
-		UserId:       userUUID.String(),
+		UserId:       userID.String(),
 		AmountChange: int64(amountChange),
 	})
 

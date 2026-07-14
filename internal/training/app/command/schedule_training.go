@@ -10,7 +10,7 @@ import (
 type ScheduleTraining struct {
 	TrainingUUID domain.TrainingUUID
 
-	UserUUID domain.UserUUID
+	UserID   domain.UserID
 	UserName string
 
 	TrainingTime time.Time
@@ -18,7 +18,7 @@ type ScheduleTraining struct {
 }
 
 func (h *Handler) ScheduleTraining(ctx context.Context, cmd ScheduleTraining) error {
-	training, err := domain.NewTraining(cmd.UserUUID, cmd.UserName, cmd.TrainingTime)
+	training, err := domain.NewTraining(cmd.UserID, cmd.UserName, cmd.TrainingTime)
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func (h *Handler) ScheduleTraining(ctx context.Context, cmd ScheduleTraining) er
 		return fmt.Errorf("failed to save training to db: %w", err)
 	}
 
-	err = h.userSerivce.UpdateTrainingBalance(ctx, training.UserUUID(), -1)
+	err = h.userSerivce.UpdateTrainingBalance(ctx, training.UserID(), -1)
 	if err != nil {
 		return fmt.Errorf("failed to update training balance: %w", err)
 	}

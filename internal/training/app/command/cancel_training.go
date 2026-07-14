@@ -23,7 +23,7 @@ func (h *Handler) CancelTraining(ctx context.Context, cmd CancelTraining) error 
 			}
 
 			if balanceDelta := domain.CancelBalanceDelta(*tr, cmd.User.Type()); balanceDelta != 0 {
-				err := h.userSerivce.UpdateTrainingBalance(ctx, tr.UserUUID(), balanceDelta)
+				err := h.userSerivce.UpdateTrainingBalance(ctx, tr.UserID(), balanceDelta)
 				if err != nil {
 					return nil, errors.Wrap(err, "unable to change trainings balance")
 				}

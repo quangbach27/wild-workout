@@ -11,26 +11,26 @@ import (
 // tests) can assert on it without needing a real user service.
 type StubUserGrpc struct {
 	mu             sync.Mutex
-	balanceChanges map[domain.UserUUID][]int
+	balanceChanges map[domain.UserID][]int
 }
 
 func NewStubUserGrpc() *StubUserGrpc {
-	return &StubUserGrpc{balanceChanges: make(map[domain.UserUUID][]int)}
+	return &StubUserGrpc{balanceChanges: make(map[domain.UserID][]int)}
 }
 
-func (s *StubUserGrpc) UpdateTrainingBalance(_ context.Context, userUUID domain.UserUUID, amountChange int) error {
+func (s *StubUserGrpc) UpdateTrainingBalance(_ context.Context, userID domain.UserID, amountChange int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.balanceChanges[userUUID] = append(s.balanceChanges[userUUID], amountChange)
+	s.balanceChanges[userID] = append(s.balanceChanges[userID], amountChange)
 	return nil
 }
 
-// BalanceChangesFor returns every balance delta recorded for userUUID, in
+// BalanceChangesFor returns every balance delta recorded for userID, in
 // the order they were applied.
-func (s *StubUserGrpc) BalanceChangesFor(userUUID domain.UserUUID) []int {
+func (s *StubUserGrpc) BalanceChangesFor(userID domain.UserID) []int {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	return append([]int(nil), s.balanceChanges[userUUID]...)
+	return append([]int(nil), s.balanceChanges[userID]...)
 }

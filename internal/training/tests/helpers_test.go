@@ -15,13 +15,13 @@ import (
 
 // newAuthenticatedClient mints a fresh stub-signed bearer token for a new
 // user of the given role and returns a client that attaches it to every
-// request, along with the UUID the token authenticates as.
-func newAuthenticatedClient(t *testing.T, role string) (*client.ClientWithResponses, domain.UserUUID) {
+// request, along with the ID the token authenticates as.
+func newAuthenticatedClient(t *testing.T, role string) (*client.ClientWithResponses, domain.UserID) {
 	t.Helper()
 
-	userUUID := domain.UserUUID{UUID: common.NewUUIDv7()}
+	userID := domain.UserID(common.NewUUIDv7().String())
 
-	token, err := stubAuthClient.NewToken(userUUID.String(), "Test "+role, role)
+	token, err := stubAuthClient.NewToken(userID.String(), "Test "+role, role)
 	require.NoError(t, err)
 
 	c, err := client.NewClientWithResponses(BaseURL, client.WithRequestEditorFn(
@@ -32,7 +32,7 @@ func newAuthenticatedClient(t *testing.T, role string) (*client.ClientWithRespon
 	))
 	require.NoError(t, err)
 
-	return c, userUUID
+	return c, userID
 }
 
 var trainingDaySeq atomic.Int64

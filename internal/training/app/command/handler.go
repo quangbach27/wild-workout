@@ -7,7 +7,7 @@ import (
 )
 
 type UserService interface {
-	UpdateTrainingBalance(ctx context.Context, userUUID domain.UserUUID, amountChange int) error
+	UpdateTrainingBalance(ctx context.Context, userID domain.UserID, amountChange int) error
 }
 
 type TrainerService interface {

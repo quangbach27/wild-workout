@@ -6,9 +6,9 @@ import (
 )
 
 type Training struct {
-	UUID     domain.TrainingUUID
-	UserUUID domain.UserUUID
-	User     string
+	UUID   domain.TrainingUUID
+	UserID domain.UserID
+	User   string
 
 	Time  time.Time
 	Notes string

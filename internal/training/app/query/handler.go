@@ -6,7 +6,7 @@ import (
 )
 
 type TrainingReadModel interface {
-	FindTrainingsForUser(ctx context.Context, userUUID domain.UserUUID) ([]Training, error)
+	FindTrainingsForUser(ctx context.Context, userID domain.UserID) ([]Training, error)
 	ListAllTrainings(ctx context.Context) ([]Training, error)
 }
 

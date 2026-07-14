@@ -27,7 +27,7 @@ type TrainingUUID struct {
 type Training struct {
 	uuid TrainingUUID
 
-	userUUID UserUUID
+	userID   UserID
 	userName string
 
 	time  time.Time
@@ -43,8 +43,8 @@ func (t *Training) UUID() TrainingUUID {
 	return t.uuid
 }
 
-func (t *Training) UserUUID() UserUUID {
-	return t.userUUID
+func (t *Training) UserID() UserID {
+	return t.userID
 }
 
 func (t *Training) UserName() string {
@@ -71,14 +71,14 @@ func (t *Training) IsCanceled() bool {
 	return t.canceled
 }
 
-func NewTraining(userUUID UserUUID, userName string, trainingTime time.Time) (*Training, error) {
+func NewTraining(userID UserID, userName string, trainingTime time.Time) (*Training, error) {
 	var errDetails []common.ErrorDetails
 
-	if userUUID.IsZero() {
+	if userID.IsZero() {
 		errDetails = append(errDetails, common.ErrorDetails{
 			EntityType: "Training",
-			ErrorSlug:  "empty-user-uuid",
-			Message:    "userUUID cannot be empty",
+			ErrorSlug:  "empty-user-id",
+			Message:    "userID cannot be empty",
 		})
 	}
 	if userName == "" {
@@ -105,7 +105,7 @@ func NewTraining(userUUID UserUUID, userName string, trainingTime time.Time) (*T
 
 	return &Training{
 		uuid:     TrainingUUID{common.NewUUIDv7()},
-		userUUID: userUUID,
+		userID:   userID,
 		userName: userName,
 		time:     trainingTime,
 	}, nil

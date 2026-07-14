@@ -6,9 +6,9 @@ import (
 )
 
 type ListTrainingsForUser struct {
-	UserUUID domain.UserUUID
+	UserID domain.UserID
 }
 
 func (h *Handler) ListTrainingsForUser(ctx context.Context, query ListTrainingsForUser) ([]Training, error) {
-	return h.trainingReadModel.FindTrainingsForUser(ctx, query.UserUUID)
+	return h.trainingReadModel.FindTrainingsForUser(ctx, query.UserID)
 }

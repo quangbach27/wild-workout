@@ -47,13 +47,13 @@ func TestTrainingReadModel_FindTrainingsForUser(t *testing.T) {
 	otherTr := newTestTraining(t, other)
 	require.NoError(t, repo.AddTraining(ctx, otherTr))
 
-	trainings, err := rm.FindTrainingsForUser(ctx, owner.UUID())
+	trainings, err := rm.FindTrainingsForUser(ctx, owner.ID())
 	require.NoError(t, err)
 	require.Len(t, trainings, 1)
 
 	got := trainings[0]
 	assert.Equal(t, tr.UUID(), got.UUID)
-	assert.Equal(t, tr.UserUUID(), got.UserUUID)
+	assert.Equal(t, tr.UserID(), got.UserID)
 	assert.Equal(t, tr.UserName(), got.User)
 	assert.True(t, tr.Time().Equal(got.Time))
 	assert.Equal(t, tr.Notes(), got.Notes)
@@ -78,7 +78,7 @@ func TestTrainingReadModel_FindTrainingsForUser_ExcludesCanceled(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	trainings, err := rm.FindTrainingsForUser(ctx, owner.UUID())
+	trainings, err := rm.FindTrainingsForUser(ctx, owner.ID())
 	require.NoError(t, err)
 	assert.Empty(t, trainings)
 }
@@ -101,7 +101,7 @@ func TestTrainingReadModel_FindTrainingsForUser_ProposedReschedule(t *testing.T)
 	})
 	require.NoError(t, err)
 
-	trainings, err := rm.FindTrainingsForUser(ctx, owner.UUID())
+	trainings, err := rm.FindTrainingsForUser(ctx, owner.ID())
 	require.NoError(t, err)
 	require.Len(t, trainings, 1)
 
@@ -135,7 +135,7 @@ func TestTrainingReadModel_ListAllTrainings(t *testing.T) {
 
 	got, ok := findByUUID(trainings, visible.UUID())
 	require.True(t, ok, "expected training to be present in ListAllTrainings")
-	assert.Equal(t, visible.UserUUID(), got.UserUUID)
+	assert.Equal(t, visible.UserID(), got.UserID)
 
 	_, ok = findByUUID(trainings, canceled.UUID())
 	assert.False(t, ok, "canceled training should not appear in ListAllTrainings")

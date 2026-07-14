@@ -27,7 +27,7 @@ func newTestRepo(t *testing.T) *db.TrainingRepo {
 func newTestUser(t *testing.T, userType domain.UserType) domain.User {
 	t.Helper()
 
-	user, err := domain.NewUser(domain.UserUUID{UUID: common.NewUUIDv7()}, userType)
+	user, err := domain.NewUser(domain.UserID(common.NewUUIDv7().String()), userType)
 	require.NoError(t, err)
 
 	return user
@@ -36,7 +36,7 @@ func newTestUser(t *testing.T, userType domain.UserType) domain.User {
 func newTestTraining(t *testing.T, owner domain.User) *domain.Training {
 	t.Helper()
 
-	tr, err := domain.NewTraining(owner.UUID(), "user-name", time.Now().Add(48*time.Hour))
+	tr, err := domain.NewTraining(owner.ID(), "user-name", time.Now().Add(48*time.Hour))
 	require.NoError(t, err)
 
 	return tr
@@ -58,7 +58,7 @@ func TestTrainingRepo_AddTraining_GetTraining(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, tr.UUID(), fetched.UUID())
-	assert.Equal(t, tr.UserUUID(), fetched.UserUUID())
+	assert.Equal(t, tr.UserID(), fetched.UserID())
 	assert.Equal(t, tr.UserName(), fetched.UserName())
 	assert.True(t, tr.Time().Equal(fetched.Time()))
 	assert.Equal(t, tr.Notes(), fetched.Notes())

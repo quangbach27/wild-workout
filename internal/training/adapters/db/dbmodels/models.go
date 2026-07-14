@@ -12,7 +12,7 @@ import (
 
 type TrainingTraining struct {
 	TrainingUuid   domain.TrainingUUID
-	UserUuid       domain.UserUUID
+	UserID         domain.UserID
 	Username       string
 	Time           time.Time
 	Notes          *string

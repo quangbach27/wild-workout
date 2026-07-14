@@ -28,10 +28,10 @@ sql:
               import: "workout/training/domain"
               type: TrainingUUID
 
-          - column: "training.trainings.user_uuid"
+          - column: "training.trainings.user_id"
             go_type:
               import: "workout/training/domain"
-              type: UserUUID
+              type: UserID
 
           - column: "training.trainings.move_proposed_by"
             go_type:

@@ -23,10 +23,10 @@ func NewTrainingReadModel(db *pgxpool.Pool) *TrainingReadModel {
 	}
 }
 
-func (r *TrainingReadModel) FindTrainingsForUser(ctx context.Context, userUUID domain.UserUUID) ([]query.Training, error) {
+func (r *TrainingReadModel) FindTrainingsForUser(ctx context.Context, userID domain.UserID) ([]query.Training, error) {
 	queries := dbmodels.New(r.db)
 
-	dbTrainings, err := queries.FindTrainingsForUser(ctx, userUUID)
+	dbTrainings, err := queries.FindTrainingsForUser(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -64,9 +64,9 @@ func mapTrainingDbToQuery(dbTraining dbmodels.TrainingTraining) query.Training {
 	}
 
 	return query.Training{
-		UUID:     tr.UUID(),
-		UserUUID: tr.UserUUID(),
-		User:     tr.UserName(),
+		UUID:   tr.UUID(),
+		UserID: tr.UserID(),
+		User:   tr.UserName(),
 
 		Time:  tr.Time(),
 		Notes: tr.Notes(),

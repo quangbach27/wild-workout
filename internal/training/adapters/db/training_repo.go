@@ -31,7 +31,7 @@ func (r *TrainingRepo) AddTraining(ctx context.Context, tr *domain.Training) err
 
 		return queries.CreateTraining(ctx, dbmodels.CreateTrainingParams{
 			TrainingUuid: tr.UUID(),
-			UserUuid:     tr.UserUUID(),
+			UserID:       tr.UserID(),
 			Username:     tr.UserName(),
 			Time:         tr.Time(),
 			Notes:        common.ToPtr(tr.Notes()),
@@ -75,7 +75,7 @@ func (r *TrainingRepo) getTraining(
 func unmarshalTrainingDbToDomain(dbTraining dbmodels.TrainingTraining) *domain.Training {
 	return domain.UnmarshalTrainingFromDB(
 		dbTraining.TrainingUuid,
-		dbTraining.UserUuid,
+		dbTraining.UserID,
 		dbTraining.Username,
 		dbTraining.Time,
 		common.SafeDeref(dbTraining.Notes, ""),

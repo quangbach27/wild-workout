@@ -10,11 +10,54 @@ services:
     working_dir: /app
     ports:
       - "127.0.0.1:4000:4000"
+      - "127.0.0.1:4001:4001"
     env_file:
       - internal/trainer/.env
     environment:
       GOCACHE: /go-cache
       SERVICE: trainer
+    networks:
+      - wild-workout
+    depends_on:
+      - postgres
+
+  training:
+    build:
+      context: docker/app-local
+    volumes:
+      - ./internal/common:/app/common
+      - ./internal/training:/app/training
+      - ./.go/pkg:/go/pkg
+      - ./.go-cache:/go-cache
+    working_dir: /app
+    ports:
+      - "127.0.0.1:5000:5000"
+    env_file:
+      - internal/training/.env
+    environment:
+      GOCACHE: /go-cache
+      SERVICE: training
+    networks:
+      - wild-workout
+    depends_on:
+      - postgres
+
+  user:
+    build:
+      context: docker/app-local
+    volumes:
+      - ./internal/common:/app/common
+      - ./internal/user:/app/user
+      - ./.go/pkg:/go/pkg
+      - ./.go-cache:/go-cache
+    working_dir: /app
+    ports:
+      - "127.0.0.1:5000:5000"
+    env_file:
+      - internal/user/.env
+    environment:
+      GOCACHE: /go-cache
+      SERVICE: user
     networks:
       - wild-workout
     depends_on:

@@ -47,7 +47,7 @@ func (h Handler) GetTrainings(ctx context.Context, request GetTrainingsRequestOb
 		trainings, err = h.queryHandler.ListAllTrainings(ctx, query.ListAllTrainings{})
 	} else {
 		trainings, err = h.queryHandler.ListTrainingsForUser(ctx, query.ListTrainingsForUser{
-			UserUUID: user.UUID(),
+			UserID: user.ID(),
 		})
 	}
 	if err != nil {
@@ -74,7 +74,7 @@ func (h Handler) CreateTraining(ctx context.Context, request CreateTrainingReque
 	}
 
 	err = h.commandHandler.ScheduleTraining(ctx, command.ScheduleTraining{
-		UserUUID:     user.UUID(),
+		UserID:       user.ID(),
 		UserName:     user.Name,
 		TrainingTime: request.Body.Time,
 		Notes:        request.Body.Notes,
@@ -187,7 +187,7 @@ func (h Handler) RescheduleTraining(ctx context.Context, request RescheduleTrain
 func toAPITraining(tr query.Training) (Training, error) {
 	apiTraining := Training{
 		Uuid:           tr.UUID,
-		UserUuid:       tr.UserUUID,
+		UserId:         tr.UserID,
 		User:           tr.User,
 		Notes:          tr.Notes,
 		Time:           tr.Time,
