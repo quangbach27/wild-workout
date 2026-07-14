@@ -2,18 +2,19 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net"
 	"os"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
-func RunGrpcServer(port string, registerServer func(server *grpc.Server)) {
-	addr := fmt.Sprintf(":%s", port)
-	RunGRPCServerOnAddr(addr, registerServer)
+// NewGRPCClientConn dials a gRPC server at addr. The returned connection is
+// established lazily (on first RPC) and must be closed by the caller.
+func NewGRPCClientConn(addr string) (*grpc.ClientConn, error) {
+	return grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 }
 
 func RunGRPCServerOnAddr(addr string, registerServer func(server *grpc.Server)) {
