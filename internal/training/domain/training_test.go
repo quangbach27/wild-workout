@@ -11,10 +11,16 @@ import (
 	"workout/training/domain"
 )
 
+func testUserUUID(t *testing.T) domain.UserUUID {
+	t.Helper()
+
+	return domain.UserUUID{UUID: common.NewUUIDv7()}
+}
+
 func newTraining(t *testing.T, trainingTime time.Time) *domain.Training {
 	t.Helper()
 
-	tr, err := domain.NewTraining("user-uuid", "user-name", trainingTime)
+	tr, err := domain.NewTraining(testUserUUID(t), "user-name", trainingTime)
 	require.NoError(t, err)
 
 	return tr
@@ -24,37 +30,38 @@ func TestNewTraining(t *testing.T) {
 	t.Parallel()
 
 	trainingTime := time.Now().Add(48 * time.Hour)
+	userUUID := testUserUUID(t)
 
 	testCases := []struct {
 		Name         string
-		UserUUID     string
+		UserUUID     domain.UserUUID
 		UserName     string
 		TrainingTime time.Time
 		ExpectError  bool
 	}{
 		{
 			Name:         "valid",
-			UserUUID:     "user-uuid",
+			UserUUID:     userUUID,
 			UserName:     "user-name",
 			TrainingTime: trainingTime,
 		},
 		{
 			Name:         "empty_user_uuid",
-			UserUUID:     "",
+			UserUUID:     domain.UserUUID{},
 			UserName:     "user-name",
 			TrainingTime: trainingTime,
 			ExpectError:  true,
 		},
 		{
 			Name:         "empty_user_name",
-			UserUUID:     "user-uuid",
+			UserUUID:     userUUID,
 			UserName:     "",
 			TrainingTime: trainingTime,
 			ExpectError:  true,
 		},
 		{
 			Name:         "zero_training_time",
-			UserUUID:     "user-uuid",
+			UserUUID:     userUUID,
 			UserName:     "user-name",
 			TrainingTime: time.Time{},
 			ExpectError:  true,

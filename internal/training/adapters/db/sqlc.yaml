@@ -1,0 +1,40 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "queries"
+    schema: "migrations"
+    gen:
+      go:
+        package: "dbmodels"
+        out: "dbmodels"
+        sql_package: "pgx/v5"
+        emit_empty_slices: true
+        emit_pointers_for_null_types: true
+        overrides:
+          - db_type: "timestamptz"
+            nullable: true
+            go_type:
+              import: "time"
+              type: "Time"
+              pointer: true
+
+          - db_type: "timestamptz"
+            go_type:
+              import: "time"
+              type: "Time"
+
+          - column: "training.trainings.training_uuid"
+            go_type:
+              import: "workout/training/domain"
+              type: TrainingUUID
+
+          - column: "training.trainings.user_uuid"
+            go_type:
+              import: "workout/training/domain"
+              type: UserUUID
+
+          - column: "training.trainings.move_proposed_by"
+            go_type:
+              import: "workout/training/domain"
+              type: UserType
+              pointer: true

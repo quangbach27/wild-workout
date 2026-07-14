@@ -15,7 +15,7 @@ type TrainingRepository interface {
 
 	UpdateTraining(
 		ctx context.Context,
-		trainingUUID string,
+		trainingUUID TrainingUUID,
 		user User,
 		updateFn func(ctx context.Context, tr *Training) (*Training, error),
 	) error
@@ -27,7 +27,7 @@ type TrainingUUID struct {
 type Training struct {
 	uuid TrainingUUID
 
-	userUUID string
+	userUUID UserUUID
 	userName string
 
 	time  time.Time
@@ -43,7 +43,7 @@ func (t *Training) UUID() TrainingUUID {
 	return t.uuid
 }
 
-func (t *Training) UserUUID() string {
+func (t *Training) UserUUID() UserUUID {
 	return t.userUUID
 }
 
@@ -71,10 +71,10 @@ func (t *Training) IsCanceled() bool {
 	return t.canceled
 }
 
-func NewTraining(userUUID string, userName string, trainingTime time.Time) (*Training, error) {
+func NewTraining(userUUID UserUUID, userName string, trainingTime time.Time) (*Training, error) {
 	var errDetails []common.ErrorDetails
 
-	if userUUID == "" {
+	if userUUID.IsZero() {
 		errDetails = append(errDetails, common.ErrorDetails{
 			EntityType: "Training",
 			ErrorSlug:  "empty-user-uuid",
@@ -111,7 +111,16 @@ func NewTraining(userUUID string, userName string, trainingTime time.Time) (*Tra
 	}, nil
 }
 
-func (t Training) CanBeCanceledForFree() bool {
+func (t *Training) UpdateNotes(notes string) error {
+	if len(notes) > 1000 {
+		return common.NewInvalidInputError("note-too-long", "Note too long")
+	}
+
+	t.notes = notes
+	return nil
+}
+
+func (t *Training) CanBeCanceledForFree() bool {
 	return time.Until(t.time) >= time.Hour*24
 }
 
@@ -175,4 +184,22 @@ func (t *Training) Cancel() error {
 
 	t.canceled = true
 	return nil
+}
+
+func CancelBalanceDelta(tr Training, cancelingUserType UserType) int {
+	if tr.CanBeCanceledForFree() {
+		// just give training back
+		return 1
+	}
+
+	switch cancelingUserType {
+	case Trainer:
+		// 1 for cancelled training +1 "fine" for cancelling by trainer less than 24h before training
+		return 2
+	case Attendee:
+		// "fine" for cancelling less than 24h before training
+		return 0
+	default:
+		panic(fmt.Sprintf("not supported user type %s", cancelingUserType))
+	}
 }

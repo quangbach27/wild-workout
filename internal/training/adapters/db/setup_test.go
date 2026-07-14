@@ -1,0 +1,16 @@
+package db_test
+
+import (
+	"embed"
+	"os"
+	"testing"
+	"workout/common/testutils"
+)
+
+//go:embed migrations/*.sql
+var embedMigrations embed.FS
+
+func TestMain(m *testing.M) {
+	testutils.RunMigrations("training", embedMigrations, "migrations")
+	os.Exit(m.Run())
+}
