@@ -1,6 +1,7 @@
 package tests_test
 
 import (
+	"context"
 	"net/http"
 	"sync/atomic"
 	"testing"
@@ -15,7 +16,12 @@ import (
 var apiClient = newAPIClient()
 
 func newAPIClient() *client.ClientWithResponses {
-	c, err := client.NewClientWithResponses(BaseURL)
+	c, err := client.NewClientWithResponses(HttpBaseURL, client.WithRequestEditorFn(
+		func(_ context.Context, req *http.Request) error {
+			req.Header.Set("Authorization", "Bearer "+authToken)
+			return nil
+		},
+	))
 	if err != nil {
 		panic(err)
 	}

@@ -2,9 +2,10 @@ package grpc
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 	"net"
-	"os"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"google.golang.org/grpc"
@@ -17,10 +18,14 @@ func NewGRPCClientConn(addr string) (*grpc.ClientConn, error) {
 	return grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 }
 
-func RunGRPCServerOnAddr(addr string, registerServer func(server *grpc.Server)) {
+// NewGRPCServer builds a *grpc.Server with the standard logging
+// interceptors wired in but not yet listening, so callers can register
+// their services and control the run/shutdown lifecycle themselves (see
+// commonHttp.NewEcho for the equivalent on the HTTP side).
+func NewGRPCServer() *grpc.Server {
 	logger := slog.Default()
 
-	grpcServer := grpc.NewServer(
+	return grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			logging.UnaryServerInterceptor(interceptorLogger(logger)),
 		),
@@ -28,19 +33,25 @@ func RunGRPCServerOnAddr(addr string, registerServer func(server *grpc.Server)) 
 			logging.StreamServerInterceptor(interceptorLogger(logger)),
 		),
 	)
-	registerServer(grpcServer)
+}
+
+// RunGRPCServerOnAddr listens on addr and serves server, blocking until it
+// stops. A clean stop (server.GracefulStop/Stop) is reported as a nil
+// error.
+func RunGRPCServerOnAddr(server *grpc.Server, addr string) error {
+	logger := slog.Default()
 
 	listen, err := net.Listen("tcp", addr)
 	if err != nil {
-		logger.Error("failed to listen", "error", err, "addr", addr)
-		os.Exit(1)
+		return fmt.Errorf("failed to listen on %s: %w", addr, err)
 	}
 
 	logger.Info("starting grpc server", "addr", addr)
-	if err := grpcServer.Serve(listen); err != nil {
-		logger.Error("grpc server stopped with error", "error", err)
-		os.Exit(1)
+	if err := server.Serve(listen); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
+		return fmt.Errorf("grpc server stopped with error: %w", err)
 	}
+
+	return nil
 }
 
 func interceptorLogger(l *slog.Logger) logging.Logger {

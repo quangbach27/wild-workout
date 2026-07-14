@@ -4,16 +4,11 @@ info:
   version: 1.0.0
   title: Wild Workouts trainings
   description: TODO
-  contact:
-    name: Three Dots Labs
-    url: https://threedots.tech/
 servers:
   - url: https://{hostname}/api
     variables:
       hostname:
         default: localhost
-security:
-  - bearerAuth: []
 paths:
   /trainings:
     get:

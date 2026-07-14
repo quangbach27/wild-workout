@@ -19,10 +19,6 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
-const (
-	BearerAuthScopes bearerAuthContextKey = "bearerAuth.Scopes"
-)
-
 // ErrorDetails defines model for ErrorDetails.
 type ErrorDetails struct {
 	EntityId   *string `json:"entity_id,omitempty"`

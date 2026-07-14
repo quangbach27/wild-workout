@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"time"
 	"workout/common"
+	commonGrpc "workout/common/grpc"
+	trainerpb "workout/common/grpc/protobuf/trainer"
 	commonHttp "workout/common/http"
 	"workout/common/log"
 	"workout/trainer/adapters/db"
@@ -15,14 +17,21 @@ import (
 	"workout/trainer/app/query"
 	"workout/trainer/config"
 	"workout/trainer/domain"
+	portGrpc "workout/trainer/ports/grpc"
 	portHttp "workout/trainer/ports/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
+	"google.golang.org/grpc"
 )
+
+type ExternalServices struct {
+	AuthClient commonHttp.AuthClient
+}
 
 type Service struct {
 	echoRouter *echo.Echo
+	grpcServer *grpc.Server
 
 	pgxDb *pgxpool.Pool
 
@@ -33,11 +42,14 @@ type Service struct {
 func New(
 	ctx context.Context,
 	pgxDb *pgxpool.Pool,
+	externalServices ExternalServices,
 ) (*Service, error) {
-	e := commonHttp.NewEcho()
+	e := commonHttp.NewEcho(externalServices.AuthClient)
+	grpcServer := commonGrpc.NewGRPCServer()
 
 	service := &Service{
 		echoRouter: e,
+		grpcServer: grpcServer,
 		pgxDb:      pgxDb,
 	}
 
@@ -46,6 +58,10 @@ func New(
 	}
 
 	if err := service.registerHttp(); err != nil {
+		return nil, err
+	}
+
+	if err := service.registerGrpc(); err != nil {
 		return nil, err
 	}
 
@@ -67,12 +83,20 @@ func (s *Service) Run(
 		if err != nil {
 			log.FromContext(ctx).Error("shutting down http server failed")
 		}
+
+		s.grpcServer.GracefulStop()
 	}()
 
 	s.echoRouter.Server.WriteTimeout = 30 * time.Second
 	s.echoRouter.Server.ReadHeaderTimeout = 30 * time.Second
 	s.echoRouter.Server.ReadTimeout = 30 * time.Second
 	s.echoRouter.Server.IdleTimeout = 60 * time.Second
+
+	go func() {
+		if err := commonGrpc.RunGRPCServerOnAddr(s.grpcServer, appConfig.GRPCAddress); err != nil {
+			log.FromContext(ctx).Error("grpc server stopped with error", "error", err)
+		}
+	}()
 
 	err := s.echoRouter.Start(appConfig.HTTPAddress)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -110,7 +134,7 @@ func (s *Service) init(ctx context.Context) error {
 	hourRepo := db.NewHourRepository(s.pgxDb, hourFactory)
 
 	s.commandHandler = command.NewHandler(hourRepo)
-	s.queryHandler = query.NewHandler(hourReadModel)
+	s.queryHandler = query.NewHandler(hourReadModel, hourRepo)
 
 	return nil
 }
@@ -121,5 +145,7 @@ func (s *Service) registerHttp() error {
 }
 
 func (s *Service) registerGrpc() error {
+	grpcHandler := portGrpc.NewHandler(s.commandHandler, s.queryHandler)
+	trainerpb.RegisterTrainerServiceServer(s.grpcServer, grpcHandler)
 	return nil
 }

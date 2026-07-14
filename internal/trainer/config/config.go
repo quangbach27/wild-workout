@@ -12,6 +12,7 @@ type Config struct {
 
 type App struct {
 	HTTPAddress string
+	GRPCAddress string
 }
 
 type Database struct {
@@ -34,6 +35,7 @@ func New() *Config {
 func newApp() App {
 	return App{
 		HTTPAddress: getEnv("HTTP_ADDRESS", ":4000"),
+		GRPCAddress: getEnv("GRPC_ADDRESS", ":4001"),
 	}
 }
 

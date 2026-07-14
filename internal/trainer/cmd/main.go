@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	commonHttp "workout/common/http"
 	"workout/common/log"
 	"workout/trainer"
 	"workout/trainer/config"
@@ -26,7 +27,12 @@ func main() {
 		panic(err)
 	}
 
-	svc, err := trainer.New(ctx, dbPgx)
+	// TODO: swap StubAuthClient for a real *auth.Client once Firebase credentials are wired up.
+	externalServices := trainer.ExternalServices{
+		AuthClient: commonHttp.NewStubAuthClient(""),
+	}
+
+	svc, err := trainer.New(ctx, dbPgx, externalServices)
 	if err != nil {
 		panic(err)
 	}
