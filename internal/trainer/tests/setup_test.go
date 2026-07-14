@@ -28,7 +28,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	go func() {
-		if err := svc.Run(ctx, config); err != nil {
+		if err := svc.Run(ctx, config.App); err != nil {
 			panic(err)
 		}
 	}()

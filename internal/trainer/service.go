@@ -54,7 +54,7 @@ func New(
 
 func (s *Service) Run(
 	ctx context.Context,
-	config *config.Config,
+	appConfig config.App,
 ) error {
 	defer s.pgxDb.Close()
 	go func() {
@@ -74,7 +74,7 @@ func (s *Service) Run(
 	s.echoRouter.Server.ReadTimeout = 30 * time.Second
 	s.echoRouter.Server.IdleTimeout = 60 * time.Second
 
-	err := s.echoRouter.Start(config.App.HTTPAddress)
+	err := s.echoRouter.Start(appConfig.HTTPAddress)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("starting http server failed: %w", err)
 	}
@@ -82,7 +82,7 @@ func (s *Service) Run(
 	return nil
 }
 
-func (s *Service) Name() string {
+func (s *Service) name() string {
 	return "trainer"
 }
 
@@ -92,7 +92,7 @@ var embedMigrations embed.FS
 func (s *Service) init(ctx context.Context) error {
 	if err := common.MigrateDatabaseUp(
 		ctx,
-		s.Name(),
+		s.name(),
 		s.pgxDb,
 		embedMigrations,
 		"adapters/db/migrations",
