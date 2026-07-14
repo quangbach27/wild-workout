@@ -71,7 +71,7 @@ func rateLimiterMiddleware() echo.MiddlewareFunc {
 	})
 }
 
-func useMiddlewares(e *echo.Echo) {
+func useMiddlewares(e *echo.Echo, authClient AuthClient) {
 	e.Use(
 		corsMiddleware,
 		rateLimiterMiddleware(),
@@ -102,6 +102,7 @@ func useMiddlewares(e *echo.Echo) {
 				return next(c)
 			}
 		},
+		NewAuthHttpMiddleware(authClient).Middleware,
 		requestLogMiddleware,
 	)
 }

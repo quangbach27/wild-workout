@@ -8,11 +8,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func NewEcho() *echo.Echo {
+func NewEcho(authClient AuthClient) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 
-	useMiddlewares(e)
+	useMiddlewares(e, authClient)
 
 	e.HTTPErrorHandler = common.EchoErrorHandler
 	e.Logger = common.NewEchoSlogAdapter(slog.Default())
