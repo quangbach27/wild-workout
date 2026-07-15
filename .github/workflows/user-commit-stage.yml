@@ -1,0 +1,23 @@
+name: User Commit Stage
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'internal/user/**'
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
+    paths:
+      - 'internal/user/**'
+
+jobs:
+  commit-stage:
+    uses: ./.github/workflows/_reusable-commit-stage.yml
+    with:
+      service: user
+    permissions:
+      contents: write
+      security-events: write
+      packages: write
+    secrets: inherit

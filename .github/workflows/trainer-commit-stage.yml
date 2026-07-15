@@ -1,0 +1,23 @@
+name: Trainer Commit Stage
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'internal/trainer/**'
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
+    paths:
+      - 'internal/trainer/**'
+
+jobs:
+  commit-stage:
+    uses: ./.github/workflows/_reusable-commit-stage.yml
+    with:
+      service: trainer
+    permissions:
+      contents: write
+      security-events: write
+      packages: write
+    secrets: inherit
