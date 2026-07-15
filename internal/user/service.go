@@ -132,9 +132,7 @@ func (s *Service) init(ctx context.Context) error {
 
 func (s *Service) registerHttp() error {
 	httpHandler := portHttp.NewHandler(s.appHandler)
-	portHttp.Register(s.echoRouter, httpHandler)
-
-	return nil
+	return portHttp.Register(s.echoRouter, httpHandler)
 }
 
 func (s *Service) registerGrpc() error {
