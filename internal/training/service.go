@@ -10,14 +10,15 @@ import (
 	"workout/common"
 	commonHttp "workout/common/http"
 	"workout/common/log"
-	"workout/training/config"
 	dbAdapter "workout/training/adapters/db"
 	"workout/training/app/command"
 	"workout/training/app/query"
+	"workout/training/config"
 	portHttp "workout/training/ports/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/sync/errgroup"
 )
 
 type ExternalServices struct {
@@ -65,8 +66,10 @@ func NewService(
 func (s *Service) Run(ctx context.Context, appConfig config.App) error {
 	defer s.pgxDb.Close()
 
-	go func() {
-		<-ctx.Done()
+	g, gctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error {
+		<-gctx.Done()
 
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
@@ -75,19 +78,18 @@ func (s *Service) Run(ctx context.Context, appConfig config.App) error {
 		if err != nil {
 			log.FromContext(ctx).Error("shutting down http server failed")
 		}
-	}()
+		
+		return nil
+	})
 
-	s.echoRouter.Server.WriteTimeout = 30 * time.Second
-	s.echoRouter.Server.ReadHeaderTimeout = 30 * time.Second
-	s.echoRouter.Server.ReadTimeout = 30 * time.Second
-	s.echoRouter.Server.IdleTimeout = 60 * time.Second
+	g.Go(func() error {
+		if err := s.echoRouter.Start(appConfig.HTTPAddress); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return fmt.Errorf("starting http server failed: %w", err)
+		}
+		return nil
+	})
 
-	err := s.echoRouter.Start(appConfig.HTTPAddress)
-	if err != nil && !errors.Is(err, http.ErrServerClosed) {
-		return fmt.Errorf("starting http server failed: %w", err)
-	}
-
-	return nil
+	return g.Wait()
 }
 
 func (s *Service) name() string {

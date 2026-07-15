@@ -22,6 +22,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
 
@@ -73,37 +74,35 @@ func (s *Service) Run(
 	appConfig config.App,
 ) error {
 	defer s.pgxDb.Close()
-	go func() {
-		<-ctx.Done()
 
+	g, gctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error {
+		<-gctx.Done()
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
-
-		err := s.echoRouter.Shutdown(shutdownCtx)
-		if err != nil {
-			log.FromContext(ctx).Error("shutting down http server failed")
+		if err := s.echoRouter.Shutdown(shutdownCtx); err != nil {
+			log.FromContext(ctx).Error("shutting down http server failed", "error", err)
 		}
-
 		s.grpcServer.GracefulStop()
-	}()
+		return nil
+	})
 
-	s.echoRouter.Server.WriteTimeout = 30 * time.Second
-	s.echoRouter.Server.ReadHeaderTimeout = 30 * time.Second
-	s.echoRouter.Server.ReadTimeout = 30 * time.Second
-	s.echoRouter.Server.IdleTimeout = 60 * time.Second
-
-	go func() {
+	g.Go(func() error {
 		if err := commonGrpc.RunGRPCServerOnAddr(s.grpcServer, appConfig.GRPCAddress); err != nil {
-			log.FromContext(ctx).Error("grpc server stopped with error", "error", err)
+			return fmt.Errorf("grpc server stopped with error: %w", err)
 		}
-	}()
+		return nil
+	})
 
-	err := s.echoRouter.Start(appConfig.HTTPAddress)
-	if err != nil && !errors.Is(err, http.ErrServerClosed) {
-		return fmt.Errorf("starting http server failed: %w", err)
-	}
+	g.Go(func() error {
+		if err := s.echoRouter.Start(appConfig.HTTPAddress); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return fmt.Errorf("starting http server failed: %w", err)
+		}
+		return nil
+	})
 
-	return nil
+	return g.Wait()
 }
 
 func (s *Service) name() string {
