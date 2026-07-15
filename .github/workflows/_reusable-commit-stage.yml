@@ -37,20 +37,6 @@ jobs:
           --health-retries 5
     steps:
       -  uses: actions/checkout@v6
-
-      - uses: anchore/scan-action@v7
-        id: scan-source
-        with:
-          path: internal/${{ inputs.service }}
-          fail-build: false
-          severity-cutoff: high
-
-      - name: Upload Anchore source scan SARIF report
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: ${{ steps.scan-source.outputs.sarif }}
-          category: ${{ inputs.service }}-source
-
       - uses: actions/setup-go@v5
         with:
           go-version-file: internal/${{ inputs.service }}/go.mod
@@ -70,6 +56,19 @@ jobs:
       - name: Build
         working-directory: internal/${{ inputs.service }}
         run: go build -v ./...
+
+      - uses: anchore/scan-action@v7
+        id: scan-source
+        with:
+          path: internal/${{ inputs.service }}
+          fail-build: false
+          severity-cutoff: high
+
+      - name: Upload Anchore source scan SARIF report
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: ${{ steps.scan-source.outputs.sarif }}
+          category: ${{ inputs.service }}-source
 
   package:
     name: Package and Publish
