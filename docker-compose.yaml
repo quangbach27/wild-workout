@@ -10,7 +10,7 @@ services:
     working_dir: /app
     ports:
       - "127.0.0.1:4000:4000"
-      - "127.0.0.1:4001:4001"
+      - "127.0.0.1:4100:4100"
     env_file:
       - internal/trainer/.env
     environment:
@@ -31,7 +31,7 @@ services:
       - ./.go-cache:/go-cache
     working_dir: /app
     ports:
-      - "127.0.0.1:5000:5000"
+      - "127.0.0.1:4200:4200"
     env_file:
       - internal/training/.env
     environment:
@@ -52,7 +52,8 @@ services:
       - ./.go-cache:/go-cache
     working_dir: /app
     ports:
-      - "127.0.0.1:5000:5000"
+      - "127.0.0.1:4300:4300"
+      - "127.0.0.1:4400:4400"
     env_file:
       - internal/user/.env
     environment:
