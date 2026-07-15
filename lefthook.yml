@@ -1,0 +1,14 @@
+pre-commit:
+  commands:
+    lint-common:
+      glob: "internal/common/**"
+      run: make lint SERVICE=common
+    lint-trainer:
+      glob: "internal/trainer/**"
+      run: make lint SERVICE=trainer
+    lint-training:
+      glob: "internal/training/**"
+      run: make lint SERVICE=training
+    lint-user:
+      glob: "internal/user/**"
+      run: make lint SERVICE=user

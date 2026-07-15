@@ -3,10 +3,11 @@ SERVICES := common trainer training user
 SERVICE ?=
 TAG ?=
 
-.PHONY: test help
+.PHONY: test lint help
 
 help:
 	@echo "Usage: make test SERVICE=<name> [TAG=<tag>]"
+	@echo "       make lint SERVICE=<name>"
 	@echo ""
 	@echo "  SERVICE  one of: $(SERVICES)"
 	@echo "  TAG      omitted        -> unit tests only"
@@ -17,6 +18,7 @@ help:
 	@echo "  make test SERVICE=trainer"
 	@echo "  make test SERVICE=training TAG=component"
 	@echo "  make test SERVICE=user TAG=integration"
+	@echo "  make lint SERVICE=user"
 	@echo ""
 	@echo "postgres can be started with: docker compose up -d postgres"
 
@@ -32,3 +34,12 @@ ifeq ($(strip $(TAG)),)
 else
 	go test -tags=$(TAG) ./internal/$(SERVICE)/...
 endif
+
+lint:
+ifeq ($(strip $(SERVICE)),)
+	$(error SERVICE is required, e.g. "make lint SERVICE=trainer". Valid services: $(SERVICES))
+endif
+ifeq ($(filter $(SERVICE),$(SERVICES)),)
+	$(error unknown SERVICE "$(SERVICE)". Valid services: $(SERVICES))
+endif
+	cd internal/$(SERVICE) && golangci-lint run --timeout=5m
