@@ -35,13 +35,21 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer trainerConn.Close()
+	defer func() {
+		if err := trainerConn.Close(); err != nil {
+			slog.Error("failed to close trainer gRPC connection", "error", err)
+		}
+	}()
 
 	userConn, err := commonGrpc.NewGRPCClientConn(cfg.App.UserGRPCAddress)
 	if err != nil {
 		panic(err)
 	}
-	defer userConn.Close()
+	defer func() {
+		if err := userConn.Close(); err != nil {
+			slog.Error("failed to close user gRPC connection", "error", err)
+		}
+	}()
 
 	trainerClient := trainer.NewTrainerServiceClient(trainerConn)
 	userClient := user.NewUsersServiceClient(userConn)
