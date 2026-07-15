@@ -12,6 +12,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 )
@@ -36,7 +37,8 @@ func MigrateDatabaseUp(
 		return fmt.Errorf("could not create iofs driver: %w", err)
 	}
 
-	if _, err := db.ExecContext(ctx, "CREATE SCHEMA IF NOT EXISTS "+moduleName); err != nil {
+	quotedSchema := pgx.Identifier{moduleName}.Sanitize()
+	if _, err := db.ExecContext(ctx, "CREATE SCHEMA IF NOT EXISTS "+quotedSchema); err != nil {
 		return fmt.Errorf("could not create schema %s: %w", moduleName, err)
 	}
 
