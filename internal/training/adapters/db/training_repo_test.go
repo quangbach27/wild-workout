@@ -38,7 +38,9 @@ func newTestUser(t *testing.T, userType domain.UserType) domain.User {
 func newTestTraining(t *testing.T, owner domain.User) *domain.Training {
 	t.Helper()
 
-	tr, err := domain.NewTraining(owner.ID(), "user-name", time.Now().Add(48*time.Hour))
+	// Truncate to microseconds: TIMESTAMPTZ only stores microsecond precision, so an
+	// untruncated time.Now() round-trips as a different value and fails Equal().
+	tr, err := domain.NewTraining(owner.ID(), "user-name", time.Now().Add(48*time.Hour).Truncate(time.Microsecond))
 	require.NoError(t, err)
 
 	return tr
@@ -148,7 +150,7 @@ func TestTrainingRepo_UpdateTraining_Reschedule(t *testing.T) {
 	tr := newTestTraining(t, owner)
 	require.NoError(t, repo.AddTraining(ctx, tr))
 
-	newTime := time.Now().Add(72 * time.Hour)
+	newTime := time.Now().Add(72 * time.Hour).Truncate(time.Microsecond)
 
 	err := repo.UpdateTraining(ctx, tr.UUID(), owner, func(ctx context.Context, tr *domain.Training) (*domain.Training, error) {
 		require.NoError(t, tr.RescheduleTraining(newTime))
@@ -171,7 +173,7 @@ func TestTrainingRepo_UpdateTraining_ProposeReschedule(t *testing.T) {
 	tr := newTestTraining(t, owner)
 	require.NoError(t, repo.AddTraining(ctx, tr))
 
-	proposedTime := time.Now().Add(96 * time.Hour)
+	proposedTime := time.Now().Add(96 * time.Hour).Truncate(time.Microsecond)
 
 	err := repo.UpdateTraining(ctx, tr.UUID(), owner, func(ctx context.Context, tr *domain.Training) (*domain.Training, error) {
 		tr.ProposeReschedule(proposedTime, domain.Attendee)
